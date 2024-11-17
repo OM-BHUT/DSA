@@ -1,20 +1,24 @@
 package Graphs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Q1 {
     public static void main(String[] args) {
         Graph g1 = new Graph();
-        int V = 9;
+        int V = 7;
 //        System.out.println("hello");
         ArrayList<Edge>[] graph = new ArrayList[V];
         g1.createGraph(graph);
+        boolean[] visited = new boolean[V];
 //        g1.bfs(graph,V);
-        g1.dfs(graph,V);
-
+//        g1.dfs(graph,V);
+//        System.out.println(g1.cycleDetection(graph,V));
 //        System.out.println(g1.hasPath(graph,V,6));
+//        System.out.println(g1.isBipartite(graph,V));
+        System.out.println(g1.isBipartite2(graph,V));
     }
 }
 
@@ -39,10 +43,16 @@ class Graph{
         graph[5].add(new Edge(5, 4, 1));
         graph[5].add(new Edge(5, 6, 1));
         graph[6].add(new Edge(6, 5, 1));
-//        graph[6].add(new Edge(6, 7, 1));
-//        graph[6].add(new Edge(6, 8, 1));
-//        graph[7].add(new Edge(7, 6, 1));
-//        graph[8].add(new Edge(8, 6, 1));
+        //new graph
+//        graph[0].add(new Edge(0,1,1));
+//        graph[0].add(new Edge(0,2,1));
+//        graph[1].add(new Edge(1,0,1));
+//        graph[1].add(new Edge(1,3,1));
+//        graph[2].add(new Edge(2,0,1));
+//        graph[2].add(new Edge(2,3,1));
+//        graph[3].add(new Edge(3,1,1));
+//        graph[3].add(new Edge(3,2,1));
+
     }
 
     public void bfs(ArrayList<Edge>[] graph,int V){
@@ -106,29 +116,65 @@ class Graph{
         }
         return check;
         }
+        boolean cycleDetection(ArrayList<Edge>[] graph,int V){
+            boolean[] visited = new boolean[V];
+            return cycleDetection(graph,V,visited,0,0);
+        }
+        private boolean cycleDetection(ArrayList<Edge>[] graph,int V,boolean[] visited,int curr,int parent){
+            visited[curr] = true;
+            boolean check = false;
+            for (Edge edge : graph[curr]){
+                if (visited[edge.dest] && parent!=edge.dest){
+                    return true;
+                }
+                if (!visited[edge.dest] && cycleDetection(graph,V,visited,edge.dest,curr)){
+//                    check = cycleDetection(graph,V,visited,edge.dest,curr);
+                    return true;
+                }
+            }
+            return false;
+        }
+        boolean isBipartite(ArrayList<Edge>[] graph,int V){
+            int[] color = new int[V];
+            Arrays.fill(color,-1);
+            Queue<Integer> q1 = new LinkedList<>();
+            q1.add(0);
+            color[0] = 0;
+            while (!q1.isEmpty()){
+                int curr = q1.poll();
+                for(Edge edge:graph[curr]){
+                    if (color[curr]==color[edge.dest]){
+                        return false;
+                    }
+                    if (color[edge.dest] == -1){
+                        color[edge.dest] = color[curr] == 0 ? 1 : 0;
+                        q1.add(edge.dest);
+                    }
+                }
+            }
+            return true;
+        }
+        
+        boolean isBipartite2(ArrayList<Edge>[] graph,int V){
+            if (!cycleDetection(graph,V)){
+                return true;
+            }
+             return V % 2 == 0;
 
+        }
+        private int sizeOfGraph(ArrayList<Edge>[] graph,int V){
+            int count = 0;
+            for (int i = 0; i < V; i++) {
+                for (Edge edge:graph[i]){
+                    count++;
+                }
+            }
+
+            System.out.println(count);
+            return count;
+        }
     }
-//    private void bfsHelper(ArrayList<Edge>[] graph,int V,boolean[] visited){
-////        visited[0] = true;
-////        System.out.println(0);
-////        ArrayList<Edge> first = graph[0];
-//        System.out.println("bfsHelper");
-//        Queue<Integer> q1 = new LinkedList<>();
-//        q1.add(graph[0].getFirst().src);
-//        while (!q1.isEmpty()){
-//            int curr = q1.poll();
-//            visited[curr] = true;
-//            System.out.println(curr+" ");
-//            ArrayList<Edge> vertex = graph[curr];
-//            for (int i = 0; i < vertex.size(); i++) {
-//                int dest = vertex.get(i).dest;
-//                if (!visited[dest]){
-//                    q1.add(dest);
-//                }
-//            }
-//        }
-//    }
-//}
+
 
 
 class Edge{
